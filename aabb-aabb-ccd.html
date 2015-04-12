@@ -89,8 +89,8 @@ svg {
             <path class="ray" marker-end="url(#arrowhead)"></path>
         </svg>
         <svg id="simulation" class="col" width="100%" height=300>
-            <rect class="boxA"></rect>
             <rect class="boxB"></rect>
+            <rect class="boxA"></rect>
             <path class="ray" marker-end="url(#arrowhead)"></path>
         </svg>
         <svg id="representation" class="col" width="100%" height=300>
@@ -105,6 +105,25 @@ svg {
 </div>
 
 <script>
+var interpolate = function(interval, steps) {
+    var counter = 0;
+    var zeroSteps = Math.floor(steps * 0.25);
+    var endSteps = Math.floor(steps * 0.25);
+    return Rx.Observable.timer(interval / steps, interval / steps)
+        .map(function() {
+            var mod = counter++ % (steps + 1 + zeroSteps + endSteps);
+            if (mod < zeroSteps) {
+                counter++;
+                return 0;
+            }
+            if (mod - zeroSteps - steps >= 0) {
+                counter++;
+                return 1;
+            }
+            return (mod - zeroSteps % (steps + 1)) / steps;
+        });
+}
+
 var boxA = new Strob.InteractiveRect("#input .boxA").outStream;
 var boxB = new Strob.InteractiveRect("#input .boxB").outStream;
 var boxAB = Rx.Observable.combineLatest(boxA, boxB, function(a, b) {
@@ -129,11 +148,20 @@ var ray = Rx.Observable.combineLatest(boxA, rayHandle, function(from, to) {
 });
 new Strob.StreamRay("#input .ray", ray);
 
-new Strob.StreamRect("#simulation .boxA", boxA);
+var interpolatedBoxA = Rx.Observable.combineLatest(ray, interpolate(2000, 120),
+        function(ray, t) {
+            return {
+                x: ray.to.x * t + ray.from.x * (1 - t),
+                y: ray.to.y * t + ray.from.y * (1 - t),
+                width: ray.from.width,
+                height: ray.from.height
+            };
+        });
+new Strob.StreamRect("#simulation .boxA", interpolatedBoxA);
 new Strob.StreamRect("#simulation .boxB", boxB);
 new Strob.StreamRay("#simulation .ray", ray);
 
-new Strob.StreamCircle("#representation .boxA", boxA.map(function(event) {
+new Strob.StreamCircle("#representation .boxA", interpolatedBoxA.map(function(event) {
     return {
         x: event.x,
         y: event.y,
