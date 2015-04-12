@@ -76,6 +76,10 @@ svg {
     stroke: #aaa;
 }
 
+.output {
+    float: right;
+}
+
 #arrowhead {
     fill: #666;
 }
@@ -115,24 +119,24 @@ svg {
         <div class="row">
             <div class="subcol">
                 <h3>Green Box</h3>
-                <div>x: <output id="greenX"></div>
-                <div>y: <output id="greenY"></div>
-                <div>width: <output id="greenWidth"></div>
-                <div>height: <output id="greenHeight"></div>
+                <div>x: <span class="output" id="greenX"></span></div>
+                <div>y: <span class="output" id="greenY"></span></div>
+                <div>width: <span class="output" id="greenWidth"></span></div>
+                <div>height: <span class="output" id="greenHeight"></span></div>
             </div>
 
             <div class="subcol">
                 <h3>Orange Box</h3>
-                <div>x: <output id="orangeX"></div>
-                <div>y: <output id="orangeY"></div>
-                <div>width: <output id="orangeWidth"></div>
-                <div>height: <output id="orangeHeight"></div>
+                <div>x: <span class="output" id="orangeX"></span></div>
+                <div>y: <span class="output" id="orangeY"></span></div>
+                <div>width: <span class="output" id="orangeWidth"></span></div>
+                <div>height: <span class="output" id="orangeHeight"></span></div>
             </div>
 
             <div class="subcol">
                 <h3>Ray</h3>
-                <div>angle: <output id="rayAngle"></div>
-                <div>magnitude: <output id="rayLength"></div>
+                <div>angle: <span class="output" id="rayAngle"></span></div>
+                <div>magnitude:&nbsp;<span class="output" id="rayLength"></span></div>
             </div>
         </div>
         <div class="row">
@@ -144,6 +148,13 @@ svg {
 </div>
 
 <script>
+var hookupOutput = function(selector, stream) {
+    var elem = document.querySelector(selector);
+    stream.subscribe(function(event) {
+        elem.innerHTML = event;
+    });
+};
+
 var interpolate = function(interval, steps) {
     var counter = 0;
     var zeroSteps = Math.floor(steps * 0.25);
@@ -185,6 +196,22 @@ var ray = Rx.Observable.combineLatest(boxA, rayHandle, function(from, to) {
         to: to
     };
 });
+var rayVector = ray.map(function(a) {
+    var delta = {
+        x: a.to.x - a.from.x,
+        y: a.to.y - a.from.y
+    };
+
+    var angle = Math.atan2(delta.y, delta.x);
+    if (angle < 0) {
+        angle += 2 * Math.PI;
+    }
+
+    return {
+        angle: Math.round(angle * 180 / Math.PI),
+        length: Math.round(Math.sqrt(delta.x * delta.x + delta.y * delta.y))
+    };
+});
 new Strob.StreamRay("#input .ray", ray);
 
 var interpolatedBoxA = Rx.Observable.combineLatest(ray, interpolate(4000, 120),
@@ -210,6 +237,19 @@ new Strob.StreamRect("#representation .boxB", boxB);
 new Strob.StreamRay("#representation .ray", ray);
 new Strob.StreamVertSlab("#representation .vertSlab", boxAB);
 new Strob.StreamHorizSlab("#representation .horizSlab", boxAB);
+
+hookupOutput("#greenX", boxA.pluck("x"));
+hookupOutput("#greenY", boxA.pluck("y"));
+hookupOutput("#greenWidth", boxA.pluck("width"));
+hookupOutput("#greenHeight", boxA.pluck("height"));
+
+hookupOutput("#orangeX", boxB.pluck("x"));
+hookupOutput("#orangeY", boxB.pluck("y"));
+hookupOutput("#orangeWidth", boxB.pluck("width"));
+hookupOutput("#orangeHeight", boxB.pluck("height"));
+
+hookupOutput("#rayAngle", rayVector.pluck("angle"));
+hookupOutput("#rayLength", rayVector.pluck("length"));
 
 boxA.connect();
 boxB.connect();
