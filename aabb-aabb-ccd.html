@@ -33,13 +33,21 @@ svg {
     stroke: #666;
 }
 
+.vertSlab,
+.horizSlab {
+    fill: #ccc;
+    stroke-width: 1px;
+    stroke-dasharray: 5, 5;
+    stroke: #aaa;
+}
+
 #arrowhead {
     fill: #666;
 }
 </style>
 
 <div id="svg-container">
-    <svg id="input" width="30%" height=200>
+    <svg id="input" width="30%" height=300>
         <defs>
             <marker id="arrowhead" viewBox="0 0 10 10"
                     refX="9" refY="5"
@@ -53,12 +61,14 @@ svg {
         <rect class="rayHandle" x=150 y=75 width=5 height=5></rect>
         <path class="ray" marker-end="url(#arrowhead)"></path>
     </svg>
-    <svg id="simulation" width="30%" height=200>
+    <svg id="simulation" width="30%" height=300>
         <rect class="boxA"></rect>
         <rect class="boxB"></rect>
         <path class="ray" marker-end="url(#arrowhead)"></path>
     </svg>
-    <svg id="representation" width="30%" height=200>
+    <svg id="representation" width="30%" height=300>
+        <rect class="vertSlab"></rect>
+        <rect class="horizSlab"></rect>
         <rect class="boxAB"></rect>
         <rect class="boxB"></rect>
         <path class="ray" marker-end="url(#arrowhead)"></path>
@@ -105,6 +115,8 @@ new Strob.StreamCircle("#representation .boxA", boxA.map(function(event) {
 new Strob.StreamRect("#representation .boxAB", boxAB);
 new Strob.StreamRect("#representation .boxB", boxB);
 new Strob.StreamRay("#representation .ray", ray);
+new Strob.StreamVertSlab("#representation .vertSlab", boxAB);
+new Strob.StreamHorizSlab("#representation .horizSlab", boxAB);
 
 boxA.connect();
 boxB.connect();

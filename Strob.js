@@ -116,10 +116,34 @@
         });
     }
 
+    function StreamVertSlab(selector, stream) {
+        var elem = document.querySelector(selector);
+        elem.setAttribute("y", -1);
+        elem.setAttribute("height", "101%");
+
+        stream.subscribe(function(event) {
+            elem.setAttribute("x", event.x - event.width / 2);
+            elem.setAttribute("width", event.width);
+        });
+    }
+
+    function StreamHorizSlab(selector, stream) {
+        var elem = document.querySelector(selector);
+        elem.setAttribute("x", -1);
+        elem.setAttribute("width", "101%");
+
+        stream.subscribe(function(event) {
+            elem.setAttribute("y", event.y - event.height / 2);
+            elem.setAttribute("height", event.height);
+        });
+    }
+
     global.Strob = {
         InteractiveRect: InteractiveRect,
         StreamRect: StreamRect,
         StreamCircle: StreamCircle,
-        StreamRay: StreamRay
+        StreamRay: StreamRay,
+        StreamVertSlab: StreamVertSlab,
+        StreamHorizSlab: StreamHorizSlab
     };
 })(this);
