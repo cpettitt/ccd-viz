@@ -1,0 +1,16 @@
+{
+  "camelcase": true,
+  "eqeqeq": true,
+  "expr": true,
+  "freeze": true,
+  "immed": true,
+  "newcap": true,
+  "noarg": true,
+  "quotmark": "double",
+  "trailing": true,
+  "undef": true,
+
+  "laxbreak": true,
+
+  "browser": true
+}

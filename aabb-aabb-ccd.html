@@ -1,0 +1,113 @@
+<!doctype html>
+
+<meta charset="utf-8">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/2.5.1/rx.lite.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.2.4/interact.js"></script>
+<script src="Strob.js"></script>
+
+<style>
+svg {
+    border: 1px solid #999;
+}
+
+.boxA, .boxAB {
+    stroke-width: 1px;
+    stroke: #999;
+    fill: #90FEC6;
+}
+
+.boxB {
+    stroke-width: 1px;
+    stroke: #999;
+    fill: #FFCD91;
+}
+
+.rayHandle {
+    stroke: #aaa;
+    fill: white;
+}
+
+.ray {
+    stroke-width: 1px;
+    stroke: #666;
+}
+
+#arrowhead {
+    fill: #666;
+}
+</style>
+
+<div id="svg-container">
+    <svg id="input" width="30%" height=200>
+        <defs>
+            <marker id="arrowhead" viewBox="0 0 10 10"
+                    refX="9" refY="5"
+                    markerUnits="strokeWidth" markerWidth="8" markerHeight="6"
+                    orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z">
+            </marker>
+        </defs>
+        <rect class="boxA" x=100 y=50 width=50 height=50></rect>
+        <rect class="boxB" x=200 y=100 width=50 height=50></rect>
+        <rect class="rayHandle" x=150 y=75 width=5 height=5></rect>
+        <path class="ray" marker-end="url(#arrowhead)"></path>
+    </svg>
+    <svg id="simulation" width="30%" height=200>
+        <rect class="boxA"></rect>
+        <rect class="boxB"></rect>
+        <path class="ray" marker-end="url(#arrowhead)"></path>
+    </svg>
+    <svg id="representation" width="30%" height=200>
+        <rect class="boxAB"></rect>
+        <rect class="boxB"></rect>
+        <path class="ray" marker-end="url(#arrowhead)"></path>
+        <circle class="boxA"></circle>
+    </svg>
+</div>
+
+<script>
+var boxA = new Strob.InteractiveRect("#input .boxA").outStream;
+var boxB = new Strob.InteractiveRect("#input .boxB").outStream;
+var boxAB = Rx.Observable.combineLatest(boxA, boxB, function(a, b) {
+    return {
+        x: b.x,
+        y: b.y,
+        width: a.width + b.width,
+        height: a.height + b.height
+    };
+});
+var rayHandleDOM = new Strob.InteractiveRect("#input .rayHandle", {
+    minWidth: 5,
+    minHeight: 5,
+    resizable: false
+});
+var rayHandle = rayHandleDOM.outStream;
+var ray = Rx.Observable.combineLatest(boxA, rayHandle, function(from, to) {
+    return {
+        from: from,
+        to: to
+    };
+});
+new Strob.StreamRay("#input .ray", ray);
+
+new Strob.StreamRect("#simulation .boxA", boxA);
+new Strob.StreamRect("#simulation .boxB", boxB);
+new Strob.StreamRay("#simulation .ray", ray);
+
+new Strob.StreamCircle("#representation .boxA", boxA.map(function(event) {
+    return {
+        x: event.x,
+        y: event.y,
+        r: 3
+    };
+}));
+new Strob.StreamRect("#representation .boxAB", boxAB);
+new Strob.StreamRect("#representation .boxB", boxB);
+new Strob.StreamRay("#representation .ray", ray);
+
+boxA.connect();
+boxB.connect();
+rayHandle.connect();
+
+</script>
