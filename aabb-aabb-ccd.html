@@ -18,14 +18,21 @@
 .row {
     display: flex;
     flex-direction: row;
-    flex: 1 1 auto;
+    flex: 1;
     width: 100%;
 }
 
 .col {
     flex-direction: column;
-    width: 45%;
-    margin: auto;
+    justify-content: space-around;
+    margin: 10px;
+    flex: 1;
+}
+
+.subcol {
+    flex-direction: column;
+    justify-content: space-around;
+    margin: 0 auto;
 }
 
 svg {
@@ -103,6 +110,36 @@ svg {
             <path class="ray" marker-end="url(#arrowhead)"></path>
             <circle class="pointA"></circle>
         </svg>
+    </div>
+    <div class="row">
+        <div class="row">
+            <div class="subcol">
+                <h3>Green Box</h3>
+                <div>x: <output id="greenX"></div>
+                <div>y: <output id="greenY"></div>
+                <div>width: <output id="greenWidth"></div>
+                <div>height: <output id="greenHeight"></div>
+            </div>
+
+            <div class="subcol">
+                <h3>Orange Box</h3>
+                <div>x: <output id="orangeX"></div>
+                <div>y: <output id="orangeY"></div>
+                <div>width: <output id="orangeWidth"></div>
+                <div>height: <output id="orangeHeight"></div>
+            </div>
+
+            <div class="subcol">
+                <h3>Ray</h3>
+                <div>angle: <output id="rayAngle"></div>
+                <div>magnitude: <output id="rayLength"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="subcol">
+                Internal model content here
+            </div>
+        </div>
     </div>
 </div>
 
