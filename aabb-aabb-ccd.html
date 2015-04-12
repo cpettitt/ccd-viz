@@ -70,6 +70,11 @@ svg {
     stroke: #666;
 }
 
+.intersect {
+    stroke-width: 2.5px;
+    stroke: #ff0000;
+}
+
 .vertSlab,
 .horizSlab {
     fill: #ccc;
@@ -116,6 +121,7 @@ svg {
             <rect class="boxB"></rect>
             <rect class="boxA hollow"></rect>
             <path class="ray" marker-end="url(#arrowhead)"></path>
+            <path class="intersect"></path>
             <circle class="pointA"></circle>
         </svg>
     </div>
@@ -218,7 +224,7 @@ var rayVector = ray.map(function(a) {
         length: Math.round(Math.sqrt(delta.x * delta.x + delta.y * delta.y))
     };
 });
-new Strob.StreamRay("#input .ray", ray);
+new Strob.StreamSegment("#input .ray", ray);
 
 var interpolatedBoxA = Rx.Observable.combineLatest(ray, interpolate(4000, 120),
         function(ray, t) {
@@ -247,9 +253,27 @@ new Strob.StreamCircle("#representation .pointA", interpolatedBoxA.map(function(
 new Strob.StreamRect("#representation .boxA", interpolatedBoxA);
 new Strob.StreamRect("#representation .boxAB", boxAB);
 new Strob.StreamRect("#representation .boxB", boxB);
-new Strob.StreamRay("#representation .ray", ray);
+new Strob.StreamSegment("#representation .ray", ray);
 new Strob.StreamVertSlab("#representation .vertSlab", boxAB);
 new Strob.StreamHorizSlab("#representation .horizSlab", boxAB);
+new Strob.StreamSegment("#representation .intersect",
+        Rx.Observable.combineLatest(ray, intersectionTimes, function(r, t) {
+            var t1 = Math.min(1, t.t1 || 0);
+            var t2 = Math.min(1, t.t2 || 0);
+            var from = r.from;
+            var to = r.to;
+
+            return {
+                from: {
+                    x: to.x * t1 + from.x * (1 - t1),
+                    y: to.y * t1 + from.y * (1 - t1)
+                },
+                to: {
+                    x: to.x * t2 + from.x * (1 - t2),
+                    y: to.y * t2 + from.y * (1 - t2)
+                }
+            };
+        }));
 
 hookupOutput("#greenX", boxA.pluck("x"));
 hookupOutput("#greenY", boxA.pluck("y"));

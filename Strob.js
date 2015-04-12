@@ -106,7 +106,7 @@
         });
     }
 
-    function StreamRay(selector, stream) {
+    function StreamSegment(selector, stream) {
         var elem = document.querySelector(selector);
         stream.subscribe(function(event) {
             var from = event.from;
@@ -142,7 +142,7 @@
         InteractiveRect: InteractiveRect,
         StreamRect: StreamRect,
         StreamCircle: StreamCircle,
-        StreamRay: StreamRay,
+        StreamSegment: StreamSegment,
         StreamVertSlab: StreamVertSlab,
         StreamHorizSlab: StreamHorizSlab
     };
