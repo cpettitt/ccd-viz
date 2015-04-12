@@ -24,7 +24,7 @@
 
 .col {
     flex-direction: column;
-    width: 30%;
+    width: 45%;
     margin: auto;
 }
 
@@ -32,10 +32,17 @@ svg {
     border: 1px solid #999;
 }
 
-.boxA, .boxAB {
+.boxA,
+.pointA,
+.boxAB {
     stroke-width: 1px;
     stroke: #999;
     fill: #90FEC6;
+}
+
+.hollow {
+    opacity: 0.6;
+    stroke-dasharray: 2, 2;
 }
 
 .boxB {
@@ -70,7 +77,6 @@ svg {
 <div id="grid">
     <div class="row">
         <h2 class="col">Input</h2>
-        <h2 class="col">Simulation</h2>
         <h2 class="col">Internal Model</h2>
     </div>
     <div class="row">
@@ -88,18 +94,14 @@ svg {
             <rect class="rayHandle" x=150 y=75 width=5 height=5></rect>
             <path class="ray" marker-end="url(#arrowhead)"></path>
         </svg>
-        <svg id="simulation" class="col" width="100%" height=300>
-            <rect class="boxB"></rect>
-            <rect class="boxA"></rect>
-            <path class="ray" marker-end="url(#arrowhead)"></path>
-        </svg>
         <svg id="representation" class="col" width="100%" height=300>
             <rect class="vertSlab"></rect>
             <rect class="horizSlab"></rect>
             <rect class="boxAB"></rect>
             <rect class="boxB"></rect>
+            <rect class="boxA hollow"></rect>
             <path class="ray" marker-end="url(#arrowhead)"></path>
-            <circle class="boxA"></circle>
+            <circle class="pointA"></circle>
         </svg>
     </div>
 </div>
@@ -148,7 +150,7 @@ var ray = Rx.Observable.combineLatest(boxA, rayHandle, function(from, to) {
 });
 new Strob.StreamRay("#input .ray", ray);
 
-var interpolatedBoxA = Rx.Observable.combineLatest(ray, interpolate(2000, 120),
+var interpolatedBoxA = Rx.Observable.combineLatest(ray, interpolate(4000, 120),
         function(ray, t) {
             return {
                 x: ray.to.x * t + ray.from.x * (1 - t),
@@ -157,17 +159,15 @@ var interpolatedBoxA = Rx.Observable.combineLatest(ray, interpolate(2000, 120),
                 height: ray.from.height
             };
         });
-new Strob.StreamRect("#simulation .boxA", interpolatedBoxA);
-new Strob.StreamRect("#simulation .boxB", boxB);
-new Strob.StreamRay("#simulation .ray", ray);
 
-new Strob.StreamCircle("#representation .boxA", interpolatedBoxA.map(function(event) {
+new Strob.StreamCircle("#representation .pointA", interpolatedBoxA.map(function(event) {
     return {
         x: event.x,
         y: event.y,
         r: 3
     };
 }));
+new Strob.StreamRect("#representation .boxA", interpolatedBoxA);
 new Strob.StreamRect("#representation .boxAB", boxAB);
 new Strob.StreamRect("#representation .boxB", boxB);
 new Strob.StreamRay("#representation .ray", ray);
