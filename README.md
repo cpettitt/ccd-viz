@@ -7,7 +7,7 @@ This file has a tool for testing moving AABB and static AABB continuous
 collision detection. Both AABBs are draggable and resizable and the vector
 angle and magnitude can be altered.
 
-![AABB / AABB CCD](//raw.githubusercontent.com/cpettitt/ccd-viz/master/aabb-aabb-ccd.png)
+![AABB / AABB CCD](aabb-aabb-ccd.png)
 
 # Design Notes
 
