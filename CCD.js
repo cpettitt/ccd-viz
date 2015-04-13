@@ -6,7 +6,7 @@
         // axes.
         var tnear = Number.NEGATIVE_INFINITY;
 
-        // The first time the vector stops intersecting with the AANN on all
+        // The first time the vector stops intersecting with the AABB on all
         // axes.
         var tfar = Number.POSITIVE_INFINITY;
 
